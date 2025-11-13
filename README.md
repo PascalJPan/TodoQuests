@@ -6,7 +6,7 @@ TodoQuests is a Flutter-based gamification app that transforms your completed To
 
 ## 📦 Download
 
-[<img src="https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge">](https://github.com/PascalJPan/TodoQuests/releases/download/v1.0.1/TodoQuests_v1.0.1.apk)
+[<img src="https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge">](https://github.com/PascalJPan/TodoQuests/releases/download/v1.0.2/TodoQuests_v1.0.2.apk)
 
 ---
 
