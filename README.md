@@ -35,9 +35,7 @@ TodoQuests is a Flutter-based gamification app that transforms your completed To
 ## Getting Started
 
 ### Prerequisites
-
-- Flutter SDK (^3.9.2)
-- Android device or emulator (Primary platform)
+- Android device
 - Todoist account with API access
 
 ### Installation
