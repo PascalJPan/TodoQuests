@@ -4,6 +4,10 @@
 
 TodoQuests is a Flutter-based gamification app that transforms your completed Todoist tasks into experience points (XP). Watch yourself level up as you complete tasks, with a beautiful Android home widget that updates in real-time showing your progress.
 
+## 📦 Download
+
+[<img src="https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge">](https://github.com/PascalJPan/TodoQuests/releases/latest/download/TodoQuests-v1.0.0.apk)
+
 ---
 
 ## Features
@@ -20,10 +24,11 @@ TodoQuests is a Flutter-based gamification app that transforms your completed To
 
 ## Screenshots
 
-![](TodoQuests_Widget.jpeg)
-![](TodoQuests_Application.jpeg)
-![](TodoQuests_Settings_1.jpeg)
-![](TodoQuests_Settings_2.jpeg)
+<img src="TodoQuests_Widget.jpeg" width="200">
+<img src="TodoQuests_Application.jpeg" width="200">
+<img src="TodoQuests_Settings_1.jpeg" width="200">
+<img src="TodoQuests_Settings_2.jpeg" width="200">
+
 
 ---
 
