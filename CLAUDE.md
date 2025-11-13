@@ -32,6 +32,12 @@ flutter build android
 flutter build macos
 ```
 
+**Build distributable release APK:**
+```bash
+flutter build apk --release
+```
+The signed APK will be at: `build/app/outputs/flutter-apk/app-release.apk`
+
 **Get dependencies:**
 ```bash
 flutter pub get
@@ -255,3 +261,61 @@ Dev dependencies:
 - Look for `WIDGET_CLICK`, `XP_REFRESH_COMPLETE`, and `WIDGET_UPDATE_RESULT` messages
 - Check that `ACTION_APPWIDGET_UPDATE` is received after refresh completes
 - Verify widget data shows updated values in logs: `📊 Widget data: Level=X, XP=Y/Z`
+
+## APK Signing and Distribution
+
+### Release Signing Configuration
+
+The app uses a custom signing key for release builds to ensure APKs can be distributed and installed on any device.
+
+**Signing files (NOT in git):**
+- `android/key.properties` - Contains keystore credentials
+- `android/todoquest-release-key.jks` - The signing keystore file
+
+**Signing configuration** (`android/app/build.gradle.kts`):
+- Automatically loads signing config from `android/key.properties`
+- Falls back to debug signing if `key.properties` doesn't exist
+- Signing key details:
+  - Alias: `todoquest`
+  - Validity: 10,000 days
+  - Algorithm: RSA 2048-bit
+
+### Building for Distribution
+
+**To create a distributable APK:**
+```bash
+flutter build apk --release
+```
+
+The signed APK will be at: `build/app/outputs/flutter-apk/app-release.apk`
+
+**Common APK Issues:**
+
+1. **"Problem parsing package" error** - Usually means:
+   - APK is debug-signed and device doesn't trust debug certificate
+   - Trying to install over an existing app with different signature
+   - Solution: Uninstall existing app first, or use properly signed release APK
+
+2. **Missing signing key** - If building on a new machine:
+   - The `android/key.properties` and `android/todoquest-release-key.jks` files are gitignored for security
+   - Need to either copy these files from the original dev machine OR generate new ones
+   - Warning: New signing key means users must uninstall old version before installing new one
+
+3. **Signature verification fails** - Check that:
+   - `android/key.properties` exists and has correct paths
+   - Keystore file path in `key.properties` is correct (should be `../todoquest-release-key.jks`)
+   - Keystore passwords match
+
+### Regenerating Signing Key (if lost)
+
+If the signing key is lost, generate a new one:
+```bash
+cd android
+keytool -genkey -v -keystore todoquest-release-key.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 \
+  -alias todoquest \
+  -storepass todoquest123 -keypass todoquest123 \
+  -dname "CN=LifeQuests, OU=Dev, O=LifeQuests, L=Unknown, S=Unknown, C=US"
+```
+
+**Important:** Users will need to uninstall the old app before installing with the new signature.
