@@ -18,10 +18,14 @@ class LifeQuestWidgetService {
     required String recentLast,
     String? levelUpTime,
   }) async {
+    print('🔧 [WIDGET_UPDATE_START] Updating widget data: Level=$level, XP=$xpInLevel/$xpNeeded');
+
     await HomeWidget.saveWidgetData<int>('level', level);
     await HomeWidget.saveWidgetData<int>('xpInLevel', xpInLevel);
     await HomeWidget.saveWidgetData<int>('xpNeeded', xpNeeded);
     await HomeWidget.saveWidgetData<int>('totalXP', totalXP);
+
+    print('🔧 [WIDGET_DATA_SAVED] Saved level, xpInLevel, xpNeeded, totalXP');
 
     // Save milestone levels from settings so widget can read them
     final prefs = await SharedPreferences.getInstance();
@@ -46,10 +50,14 @@ class LifeQuestWidgetService {
     // Set up click action to refresh XP
     await HomeWidget.saveWidgetData<String>('action', 'refresh');
 
-    await HomeWidget.updateWidget(
+    print('🔧 [WIDGET_DATA_COMPLETE] All data saved, triggering widget update');
+
+    final updateResult = await HomeWidget.updateWidget(
       name: androidWidget,
       iOSName: widgetName,
       qualifiedAndroidName: 'com.example.life_quests.LifeQuestWidgetProvider',
     );
+
+    print('🔧 [WIDGET_UPDATE_RESULT] Update result: $updateResult');
   }
 }

@@ -11,35 +11,38 @@ import 'package:home_widget/home_widget.dart';
 // Mark as entry point to prevent tree-shaking in release builds
 @pragma('vm:entry-point')
 Future<void> backgroundCallback(Uri? uri) async {
+  // Initialize Flutter bindings for background isolate
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Set app group ID for widget communication (Android SharedPreferences / iOS App Groups)
+  await HomeWidget.setAppGroupId('group.com.example.life_quests');
+
   final startTime = DateTime.now();
 
-  await DebugLogger.log('WIDGET_CLICK', details: 'URI: ${uri?.toString() ?? "null"}');
+  print('🔍 [WIDGET_CLICK] URI: ${uri?.toString() ?? "null"}');
 
   if (uri == null) {
-    await DebugLogger.log('CALLBACK_FAILED', details: 'URI is null', isError: true);
+    print('❌ [CALLBACK_FAILED] URI is null');
     return;
   }
 
   if (uri.host == 'refresh' || uri.queryParameters['action'] == 'refresh') {
-    print('🔄 Widget clicked - triggering background XP refresh');
-    await DebugLogger.log('REFRESH_START', details: 'Background callback triggered');
+    print('🔄 [REFRESH_START] Widget clicked - triggering background XP refresh');
 
     try {
       // Refresh XP (this will also update the widget)
       await LifeQuestService().refreshXP();
 
       final duration = DateTime.now().difference(startTime).inMilliseconds;
-      await DebugLogger.log('REFRESH_SUCCESS', details: 'Completed in ${duration}ms');
-      print('✅ Background refresh completed in ${duration}ms');
+      print('✅ [REFRESH_SUCCESS] Background refresh completed in ${duration}ms');
       // Note: Widget is already updated by refreshXP(), no need to trigger again
     } catch (e) {
       final duration = DateTime.now().difference(startTime).inMilliseconds;
-      await DebugLogger.log('REFRESH_ERROR', details: 'Failed after ${duration}ms: $e', isError: true);
-      print('❌ Background refresh failed: $e');
+      print('❌ [REFRESH_ERROR] Failed after ${duration}ms: $e');
       // Don't throw - background callbacks shouldn't crash
     }
   } else {
-    await DebugLogger.log('CALLBACK_IGNORED', details: 'URI does not match refresh pattern');
+    print('⚠️ [CALLBACK_IGNORED] URI does not match refresh pattern');
   }
 }
 
@@ -47,9 +50,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Register background callback for widget interactions
-  await DebugLogger.log('APP_START', details: 'Registering background callback');
+  print('📱 [APP_START] Registering background callback');
   await HomeWidget.registerInteractivityCallback(backgroundCallback);
-  await DebugLogger.log('CALLBACK_REGISTERED', details: 'Background callback registered successfully');
+  print('✅ [CALLBACK_REGISTERED] Background callback registered successfully');
 
   runApp(const LifeQuestApp());
 }

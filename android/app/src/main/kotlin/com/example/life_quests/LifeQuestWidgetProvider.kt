@@ -13,13 +13,15 @@ class LifeQuestWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        Log.d("LifeQuestWidgetProvider", "📥 onReceive: ${intent.action}")
+        Log.d("LifeQuestWidgetProvider", "📥 onReceive: ${intent.action}, extras: ${intent.extras?.keySet()?.joinToString()}")
 
         // Handle widget update action - get all widget IDs if not provided
         if (intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
+            Log.d("LifeQuestWidgetProvider", "🔄 ACTION_APPWIDGET_UPDATE received")
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
                 ?: appWidgetManager.getAppWidgetIds(android.content.ComponentName(context, LifeQuestWidgetProvider::class.java))
+            Log.d("LifeQuestWidgetProvider", "🔄 Updating ${appWidgetIds.size} widgets: ${appWidgetIds.joinToString()}")
             if (appWidgetIds.isNotEmpty()) {
                 onUpdate(context, appWidgetManager, appWidgetIds)
             }

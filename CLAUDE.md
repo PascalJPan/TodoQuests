@@ -142,6 +142,34 @@ The app uses `home_widget` package's background callback system for widget inter
 
 **Important**: Widget clicks run entirely in the background. The app never opens during refresh.
 
+#### Critical Requirements for Background Callback
+
+The `backgroundCallback()` function in `lib/main.dart` **MUST** include these initializations:
+
+```dart
+@pragma('vm:entry-point')
+Future<void> backgroundCallback(Uri? uri) async {
+  // REQUIRED: Initialize Flutter bindings for background isolate
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // REQUIRED: Set app group ID for widget communication
+  await HomeWidget.setAppGroupId('group.com.example.life_quests');
+
+  // ... rest of callback logic
+}
+```
+
+**Why this is critical:**
+- `WidgetsFlutterBinding.ensureInitialized()` - Without this, `SharedPreferences` will fail silently in the background isolate, causing widget data not to update
+- `HomeWidget.setAppGroupId()` - Required for the widget to read/write shared data between the app and widget on Android/iOS
+- The `@pragma('vm:entry-point')` annotation prevents tree-shaking from removing the callback in release builds
+
+**Common symptoms if these are missing:**
+- Widget click triggers refresh (logs show `WIDGET_CLICK`)
+- XP calculation completes (logs show `XP_REFRESH_COMPLETE`)
+- Widget display does NOT update with new values
+- No errors are thrown (fails silently)
+
 ## Key Implementation Details
 
 ### XP Calculation Formula
@@ -191,9 +219,39 @@ Key packages:
 - `http` (^1.2.2) - Todoist API requests
 - `shared_preferences` (^2.3.2) - Local data persistence
 - `home_widget` (^0.8.1) - Cross-platform widget support
-- `flutter_local_notifications` (^17.2.2) - Notification support
+- `flutter_local_notifications` (^19.5.0) - Notification support (upgraded from 17.2.2)
 - `cupertino_icons` (^1.0.8) - iOS-style icons
 
 Dev dependencies:
 - `flutter_test` - Testing framework
-- `flutter_lints` (^5.0.0) - Code analysis rules
+- `flutter_lints` (^6.0.0) - Code analysis rules (upgraded from 5.0.0)
+
+### Dependency Compatibility Notes
+
+**Android Build Configuration** (`android/app/build.gradle.kts`):
+- `desugar_jdk_libs` must be version `2.1.4` or higher (required by `flutter_local_notifications` 19.5.0+)
+- Lower versions (e.g., 2.0.4) will cause build failures with AAR metadata errors
+
+**Common Dependency Issues:**
+1. **Missing imports in release builds** - If you see errors about `BasicMessageChannel`, `PlatformException`, or `BinaryMessenger` not being defined:
+   - Run `flutter clean`
+   - Run `flutter pub upgrade --major-versions` to update packages
+   - Check that `desugar_jdk_libs` is at the correct version in `build.gradle.kts`
+
+2. **ProGuard/R8 tree-shaking** - Release builds require proper ProGuard rules (`android/app/proguard-rules.pro`):
+   ```proguard
+   # Keep home_widget plugin classes
+   -keep class es.antonborri.home_widget.** { *; }
+   -keep class androidx.work.** { *; }
+
+   # Keep widget provider and background receiver
+   -keep class * extends android.appwidget.AppWidgetProvider { *; }
+   -keep class * extends android.content.BroadcastReceiver { *; }
+   -keep class com.example.life_quests.LifeQuestWidgetProvider { *; }
+   ```
+
+**Debugging Widget Issues:**
+- Use `adb logcat | grep -E "flutter|LifeQuestWidget"` to monitor logs
+- Look for `WIDGET_CLICK`, `XP_REFRESH_COMPLETE`, and `WIDGET_UPDATE_RESULT` messages
+- Check that `ACTION_APPWIDGET_UPDATE` is received after refresh completes
+- Verify widget data shows updated values in logs: `📊 Widget data: Level=X, XP=Y/Z`
