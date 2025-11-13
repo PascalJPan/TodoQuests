@@ -29,42 +29,6 @@ TodoQuests is a Flutter-based gamification app that transforms your completed To
 <img src="TodoQuests_Settings_1.jpeg" width="200">
 <img src="TodoQuests_Settings_2.jpeg" width="200">
 
-
----
-
-## Getting Started
-
-### Prerequisites
-- Android device
-- Todoist account with API access
-
-### Installation
-
-It is easiest to just use this download link:
-
-
-### Manually
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   flutter pub get
-   ```
-
-3. **Run the app**:
-   ```bash
-   flutter run --release
-   ```
-
-   Or for specific device:
-   ```bash
-   flutter run --release -d <device-id>
-   ```
-
 ---
 
 ## Configuration
@@ -104,9 +68,9 @@ It is easiest to just use this download link:
 Add XP values to your Todoist task names using keywords:
 
 ```
-Complete workout +50xp
-Read 30 pages +25 XP
--10xp penalty task
+Complete Study 100xp
+Laundry 250 XP
+Penalty task -10xp 
 ```
 
 **Supported formats**:
