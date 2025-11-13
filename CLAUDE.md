@@ -319,3 +319,134 @@ keytool -genkey -v -keystore todoquest-release-key.jks \
 ```
 
 **Important:** Users will need to uninstall the old app before installing with the new signature.
+
+## Widget Background Refresh - Distribution Fix
+
+### Issue: Widget Click Works via ADB but Not from Downloaded APK
+
+**Problem:** When installing the APK via `adb install`, the widget click triggers background refresh correctly. However, when users download the APK from GitHub and install manually, the widget click does nothing.
+
+**Root Cause:** Android applies stricter security restrictions to apps installed from "unknown sources" (downloads) compared to apps installed via developer tools (adb). Specifically:
+- Background execution is restricted for sideloaded apps
+- WorkManager may be blocked from running
+- Broadcast receivers may not trigger properly
+- Required permissions are not automatically granted
+
+**Solution:** Add specific permissions and receiver configurations to AndroidManifest.xml
+
+### Required Permissions (AndroidManifest.xml)
+
+Add these permissions at the top of the manifest:
+
+```xml
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+<uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+```
+
+**Why these are needed:**
+- `WAKE_LOCK` - Allows WorkManager to wake the device for background tasks
+- `RECEIVE_BOOT_COMPLETED` - Allows WorkManager to reschedule tasks after reboot
+- `SCHEDULE_EXACT_ALARM` - Required for Android 12+ background execution
+- `USE_EXACT_ALARM` - Required for Android 13+ background execution
+- `FOREGROUND_SERVICE` - Allows background service execution
+- `POST_NOTIFICATIONS` - Required for Android 13+ background notifications
+
+### Enhanced Receiver Configuration
+
+Update the `HomeWidgetBackgroundReceiver` declaration:
+
+```xml
+<receiver
+    android:name="es.antonborri.home_widget.HomeWidgetBackgroundReceiver"
+    android:exported="true"
+    android:enabled="true"
+    android:directBootAware="true">
+    <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <data android:scheme="lifequest" android:host="refresh" />
+    </intent-filter>
+</receiver>
+```
+
+**Additional attributes:**
+- `android:enabled="true"` - Explicitly enable the receiver
+- `android:directBootAware="true"` - Allow receiver to work before device is unlocked
+- Added `<category android:name="android.intent.category.DEFAULT" />` - Required for implicit intents
+
+### Application Configuration
+
+Add these attributes to the `<application>` tag:
+
+```xml
+<application
+    ...
+    android:allowBackup="true"
+    android:fullBackupContent="true">
+```
+
+### WorkManager Provider
+
+Add this inside the `<application>` tag:
+
+```xml
+<!-- WorkManager initialization -->
+<provider
+    android:name="androidx.startup.InitializationProvider"
+    android:authorities="${applicationId}.androidx-startup"
+    android:exported="false"
+    tools:node="merge">
+    <meta-data
+        android:name="androidx.work.WorkManagerInitializer"
+        android:value="androidx.startup"
+        tools:node="remove" />
+</provider>
+```
+
+This ensures WorkManager is properly initialized even when the app is sideloaded.
+
+### User Instructions for Downloaded APK
+
+Users who download the APK should:
+
+1. **Enable installation from unknown sources** (varies by Android version)
+2. **After installation, grant special permissions:**
+   - Settings → Apps → TodoQuests → Battery → Set to **Unrestricted**
+   - Settings → Apps → TodoQuests → Alarms & reminders → **Allow**
+3. **Test the widget click** - should work without opening the app
+
+### Testing Checklist
+
+Before releasing an APK for distribution:
+
+1. ✅ Build release APK: `flutter build apk --release`
+2. ✅ Sign and align the APK:
+   ```bash
+   zipalign -f 4 app-release.apk app-release-aligned.apk
+   apksigner sign --ks keystore.jks --out app-release-signed.apk app-release-aligned.apk
+   ```
+3. ✅ Upload to GitHub releases
+4. ✅ Test by downloading (not adb install):
+   - Completely uninstall any existing version
+   - Download APK from GitHub
+   - Install manually
+   - Add widget to home screen
+   - Click widget and verify refresh works
+   - Check logs: `adb logcat | grep WIDGET_CLICK`
+
+### Common Issues
+
+**Widget click still not working after download:**
+- Check battery optimization is disabled
+- Verify "Alarms & reminders" permission is granted
+- On Android 13+, check notification permission is granted
+- Check logs for any permission denial errors
+
+**Differences between adb install vs manual install:**
+- `adb install -r` grants permissions automatically in developer mode
+- Manual install from downloads requires explicit permission grants
+- Battery optimization is often stricter for sideloaded apps
