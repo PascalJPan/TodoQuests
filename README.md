@@ -1,8 +1,8 @@
-# LifeQuests
+# TodoQuests
 
 **Turn your Todoist tasks into XP and level up your life!**
 
-LifeQuests is a Flutter-based gamification app that transforms your completed Todoist tasks into experience points (XP). Watch yourself level up as you complete tasks, with a beautiful Android home widget that updates in real-time showing your progress.
+TodoQuests is a Flutter-based gamification app that transforms your completed Todoist tasks into experience points (XP). Watch yourself level up as you complete tasks, with a beautiful Android home widget that updates in real-time showing your progress.
 
 ---
 
@@ -20,7 +20,10 @@ LifeQuests is a Flutter-based gamification app that transforms your completed To
 
 ## Screenshots
 
-*[Add screenshots here]*
+![](TodoQuests_Widget.jpeg)
+![](TodoQuests_Application.jpeg)
+![](TodoQuests_Settings_1.jpeg)
+![](TodoQuests_Settings_2.jpeg)
 
 ---
 
@@ -34,10 +37,14 @@ LifeQuests is a Flutter-based gamification app that transforms your completed To
 
 ### Installation
 
+It is easiest to just use this download link:
+
+
+### Manually
+
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>
-   cd LifeQuests/life_quests
    ```
 
 2. **Install dependencies**:
@@ -66,7 +73,7 @@ LifeQuests is a Flutter-based gamification app that transforms your completed To
 
 ### 2. Configure the App
 
-1. Open LifeQuests
+1. Open TodoQuests
 2. Tap the **Settings icon** (⚙️)
 3. Enter your **Todoist API key**
 4. Configure XP formula parameters (optional):
@@ -82,7 +89,7 @@ LifeQuests is a Flutter-based gamification app that transforms your completed To
 
 1. Long-press on your Android home screen
 2. Tap **Widgets**
-3. Find and add **LifeQuests Widget**
+3. Find and add **TodoQuests Widget**
 4. The widget will display your current level and XP
 
 ---
@@ -148,8 +155,8 @@ If widget clicks aren't updating your XP:
 
 1. **Open the app at least once** after installing (registers background callback)
 2. **Check network settings**:
-   - Settings → Apps → LifeQuests → Battery → Disable "Background restriction"
-   - Settings → Apps → LifeQuests → Mobile data → Enable "Allow background data usage"
+   - Settings → Apps → TodoQuests → Battery → Disable "Background restriction"
+   - Settings → Apps → TodoQuests → Mobile data → Enable "Allow background data usage"
 3. **View Debug Logs**:
    - Open app → Logs → Debug Logs tab
    - Click widget and check for errors
@@ -220,21 +227,18 @@ See `WIDGET_DEBUG_GUIDE.md` for comprehensive debugging instructions.
 ### Project Structure
 
 ```
-LifeQuests/
-├── life_quests/                  # Flutter app
-│   ├── lib/
-│   │   ├── main.dart            # Entry point + background callback
-│   │   ├── xp_service.dart      # XP calculations + Todoist API
-│   │   ├── lifequest_widget.dart # Widget data sync
-│   │   ├── settings_page.dart   # Configuration UI
-│   │   ├── logs_page.dart       # XP Activity + Debug Logs
-│   │   ├── milestone_helper.dart # Milestone logic
-│   │   └── debug_logger.dart    # Diagnostic logging
-│   └── android/
-│       └── app/src/main/kotlin/...
-│           └── LifeQuestWidgetProvider.kt  # Android widget
-├── level_framework.ipynb         # XP progression generator
-└── README.md                     # This file
+life_quests/                  # Flutter app
+├── lib/
+│   ├── main.dart            # Entry point + background callback
+│   ├── xp_service.dart      # XP calculations + Todoist API
+│   ├── lifequest_widget.dart # Widget data sync
+│   ├── settings_page.dart   # Configuration UI
+│   ├── logs_page.dart       # XP Activity + Debug Logs
+│   ├── milestone_helper.dart # Milestone logic
+│   └── debug_logger.dart    # Diagnostic logging
+└── android/
+│ └── app/src/main/kotlin/...
+│     └── LifeQuestWidgetProvider.kt  # Android widget
 ```
 
 ### Building
@@ -276,15 +280,11 @@ flutter analyze
 - `shared_preferences` (^2.3.2) - Local data persistence
 - `home_widget` (^0.8.1) - Cross-platform widget support
 
-**UI**:
-- `cupertino_icons` (^1.0.8) - iOS-style icons
-
 **Notifications** (future use):
 - `flutter_local_notifications` (^17.2.2)
 
 **Development**:
 - `flutter_lints` (^5.0.0) - Code analysis rules
-
 ---
 
 ## Platform Support
@@ -298,47 +298,7 @@ flutter analyze
 
 ---
 
-## Permissions
-
-### Android
-
-**Required**:
-- `INTERNET` - Fetch tasks from Todoist API
-- `ACCESS_NETWORK_STATE` - Check network connectivity for background requests
-
-**Optional** (requested at runtime):
-- None (all features work without runtime permissions)
-
----
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly (especially widget functionality)
-5. Submit a pull request
-
-### Guidelines
-
-- Maintain backward compatibility with existing data formats
-- Add logging for significant events
-- Update documentation for new features
-- Test widget background refresh after changes
-
----
-
-## License
-
-*[Add license information]*
-
----
-
 ## Credits
-
-**Developed by**: *[Your name]*
 
 **Built with**:
 - [Flutter](https://flutter.dev/) - UI framework
